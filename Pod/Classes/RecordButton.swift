@@ -6,6 +6,8 @@
 //  Copyright (c) 2015 Samuel Beek. All rights reserved.
 //
 
+import UIKit
+
 @objc public enum RecordButtonState : Int {
     case recording, idle, hidden;
 }
@@ -51,7 +53,6 @@
     fileprivate var gradientMaskLayer: CAGradientLayer!
     fileprivate var currentProgress: CGFloat! = 0
 
-    
     override public init(frame: CGRect) {
         
         super.init(frame: frame)
@@ -61,7 +62,6 @@
         self.addTarget(self, action: #selector(RecordButton.didTouchUp), for: .touchUpOutside)
         
         self.drawButton()
-        
     }
     
     required public init?(coder aDecoder: NSCoder) {
@@ -73,7 +73,6 @@
         
         self.drawButton()
     }
-    
     
     fileprivate func drawButton() {
         
@@ -99,8 +98,9 @@
         circleBorder.cornerRadius = self.frame.size.width / 2
         layer.insertSublayer(circleBorder, at: 0)
         
-        let startAngle: CGFloat = CGFloat(Double.pi) + CGFloat(Double.pi/2)
-        let endAngle: CGFloat = CGFloat(Double.pi) * 3 + CGFloat(Double.pi/2)
+        
+        let startAngle: CGFloat = CGFloat.pi + CGFloat.pi / 2
+        let endAngle: CGFloat = CGFloat.pi * 3 + CGFloat.pi / 2
         let centerPoint: CGPoint = CGPoint(x: self.frame.size.width / 2, y: self.frame.size.height / 2)
         gradientMaskLayer = self.gradientMask()
         progressLayer = CAShapeLayer()
@@ -118,30 +118,30 @@
     fileprivate func setRecording(_ recording: Bool) {
         
         let duration: TimeInterval = 0.15
-        circleLayer.contentsGravity = "center"
+        circleLayer.contentsGravity = CALayerContentsGravity(rawValue: "center")
         
         let scale = CABasicAnimation(keyPath: "transform.scale")
         scale.fromValue = recording ? 1.0 : 0.88
         scale.toValue = recording ? 0.88 : 1
         scale.duration = duration
-        scale.fillMode = kCAFillModeForwards
+        scale.fillMode = CAMediaTimingFillMode.forwards
         scale.isRemovedOnCompletion = false
         
         let color = CABasicAnimation(keyPath: "backgroundColor")
         color.duration = duration
-        color.fillMode = kCAFillModeForwards
+        color.fillMode = CAMediaTimingFillMode.forwards
         color.isRemovedOnCompletion = false
         color.toValue = recording ? progressColor.cgColor : buttonColor.cgColor
         
         let circleAnimations = CAAnimationGroup()
         circleAnimations.isRemovedOnCompletion = false
-        circleAnimations.fillMode = kCAFillModeForwards
+        circleAnimations.fillMode = CAMediaTimingFillMode.forwards
         circleAnimations.duration = duration
         circleAnimations.animations = [scale, color]
         
         let borderColor: CABasicAnimation = CABasicAnimation(keyPath: "borderColor")
         borderColor.duration = duration
-        borderColor.fillMode = kCAFillModeForwards
+        borderColor.fillMode = CAMediaTimingFillMode.forwards
         borderColor.isRemovedOnCompletion = false
         borderColor.toValue = recording ? UIColor(red: 0.83, green: 0.86, blue: 0.89, alpha: 1).cgColor : buttonColor
         
@@ -149,12 +149,12 @@
         borderScale.fromValue = recording ? 1.0 : 0.88
         borderScale.toValue = recording ? 0.88 : 1.0
         borderScale.duration = duration
-        borderScale.fillMode = kCAFillModeForwards
+        borderScale.fillMode = CAMediaTimingFillMode.forwards
         borderScale.isRemovedOnCompletion = false
         
         let borderAnimations = CAAnimationGroup()
         borderAnimations.isRemovedOnCompletion = false
-        borderAnimations.fillMode = kCAFillModeForwards
+        borderAnimations.fillMode = CAMediaTimingFillMode.forwards
         borderAnimations.duration = duration
         borderAnimations.animations = [borderColor, borderScale]
         
@@ -162,7 +162,7 @@
         fade.fromValue = recording ? 0.0 : 1.0
         fade.toValue = recording ? 1.0 : 0.0
         fade.duration = duration
-        fade.fillMode = kCAFillModeForwards
+        fade.fillMode = CAMediaTimingFillMode.forwards
         fade.isRemovedOnCompletion = false
         
         circleLayer.add(circleAnimations, forKey: "circleAnimations")
@@ -172,12 +172,15 @@
     }
     
     fileprivate func gradientMask() -> CAGradientLayer {
+        
+        let defaultColor = UIColor.red
         let gradientLayer = CAGradientLayer()
         gradientLayer.frame = self.bounds
         gradientLayer.locations = [0.0, 1.0]
-        let topColor = progressColor
-        let bottomColor = progressColor
-        gradientLayer.colors = [topColor?.cgColor as Any, bottomColor?.cgColor as Any]
+        let topColor = progressColor ?? defaultColor
+        let bottomColor = progressColor ?? defaultColor
+        
+        gradientLayer.colors = [topColor.cgColor, bottomColor.cgColor]
         return gradientLayer
     }
     
@@ -218,7 +221,5 @@
     open func setProgress(_ newProgress: CGFloat) {
         progressLayer.strokeEnd = newProgress
     }
-    
-    
 }
 
